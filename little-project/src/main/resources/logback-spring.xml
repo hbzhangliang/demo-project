@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		　　<encoder>
+		　　　　<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+		　　</encoder>
+	</appender>
+	<appender name="little-project" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/spiderData/spider_data.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 按天回滚 daily -->
+			<fileNamePattern>biz_comment.%d{yyyy-MM-dd}.tar.gz</fileNamePattern>
+			<!-- 日志最大的历史 10天 -->
+            <maxHistory>10</maxHistory>
+		</rollingPolicy>
+		<encoder charset="UTF-8">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+</configuration>
