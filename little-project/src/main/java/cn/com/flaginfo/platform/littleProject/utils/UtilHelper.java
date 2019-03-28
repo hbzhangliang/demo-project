@@ -1,12 +1,13 @@
 package cn.com.flaginfo.platform.littleProject.utils;
 
+import cn.com.flaginfo.platform.littleProject.mongo.models.BaseMongoDbModel;
 import org.apache.commons.lang3.StringUtils;
-
+import org.bson.types.ObjectId;
+import java.lang.reflect.Field;
+import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class UtilHelper {
@@ -15,6 +16,10 @@ public class UtilHelper {
 
     private static final PropertiesUtils redisProper = new PropertiesUtils("spring/redis-time-config.properties");
 
+
+    public static void  main(String[] args){
+
+    }
 
     /**
      * 连接字符串  z作为redis的key值
@@ -27,10 +32,10 @@ public class UtilHelper {
             StringBuilder sb=new StringBuilder();
             for (Object p : args) {
                 if (null != p&& StringUtils.isNotBlank(String.valueOf(p))) {
-                    sb.append(index+String.valueOf(p));
+                    sb.append(index+":"+String.valueOf(p));
                 }
                 else {
-                    sb.append(index+"_");
+                    sb.append(index+":");
                 }
                 index++;
             }
@@ -38,6 +43,25 @@ public class UtilHelper {
         }
         return null;
     }
+
+    public static String contacsStringObj(Object[] args){
+        if(args!=null&&args.length>0) {
+            int index=0;
+            StringBuilder sb=new StringBuilder();
+            for (Object p : args) {
+                if (null != p&& StringUtils.isNotBlank(String.valueOf(p))) {
+                    sb.append(index+":"+String.valueOf(p));
+                }
+                else {
+                    sb.append(index+":");
+                }
+                index++;
+            }
+            return sb.toString();
+        }
+        return null;
+    }
+
 
 
     public static TimeUnit getTimeUtil(String type){
@@ -81,27 +105,10 @@ public class UtilHelper {
 
     private  static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private  static SimpleDateFormat sdfYM = new SimpleDateFormat("yyyy-MM");
 
     private  static SimpleDateFormat sdfYMD = new SimpleDateFormat("yyyy-MM-dd");
 
     private  static SimpleDateFormat sdfYMDHM = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-
-    public static String getDateStrYM(Date date){
-        if(null==date){
-            return null;
-        }
-        return sdfYM.format(date);
-    }
-
-
-    public static String getDateStrYMDHM(Date date){
-        if(null==date){
-            return null;
-        }
-        return sdfYMDHM.format(date);
-    }
 
 
     public static Date parseDateYMD(String str)throws ParseException{
@@ -112,88 +119,111 @@ public class UtilHelper {
         return sdfYMDHM.parse(str);
     }
 
-    /**
-     * 将驼峰转为下横线
-     * 比如createBy  ---> create_by
-     * @param param
-     * @return
-     */
-    public static String camelToUnderline(String param){
-        if (param==null||"".equals(param.trim())){
-            return "";
-        }
-        int len=param.length();
-        StringBuilder sb=new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            char c=param.charAt(i);
-            if (Character.isUpperCase(c)){
-                sb.append(UNDERLINE);
-                sb.append(Character.toLowerCase(c));
-            }else{
-                sb.append(c);
+
+    public static Boolean checkBlankExist(String... list){
+        Boolean flag=false;
+        for(String item:list){
+            if(StringUtils.isBlank(item)){
+                flag=true;
+                break;
             }
         }
-        return sb.toString();
+        return flag;
     }
 
-    /**
-     * 下划线转驼峰
-     * @param param
-     * @return
-     */
-    public static String underlineToCamel(String param){
-        if (param==null||"".equals(param.trim())){
-            return "";
+
+    public static synchronized String sycnOnjectId(){
+        return ObjectId.get().toString();
+    }
+
+
+
+
+    public static Map<String, Object> getKeyAndValue(Object obj) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        // 得到类对象
+        Class userCla = (Class) obj.getClass();
+        List<Field> list=new ArrayList<>(20);
+        /* 得到类中的所有属性集合 */
+        List<Field> listField = Arrays.asList(userCla.getDeclaredFields());
+        list.addAll(listField);
+        if(null!=userCla.getSuperclass()){
+            List<Field> tmp=Arrays.asList(userCla.getSuperclass().getDeclaredFields());
+            list.addAll(tmp);
         }
-        int len=param.length();
-        StringBuilder sb=new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            char c=param.charAt(i);
-            if (c==UNDERLINE){
-                if (++i<len){
-                    sb.append(Character.toUpperCase(param.charAt(i)));
+
+        list.forEach(f->{
+            f.setAccessible(true); // 设置些属性是可以访问的
+            Object val = new Object();
+            try {
+                if(!f.getName().equals(f.getName().toUpperCase())&&null!=val) {
+                    val = f.get(obj);
+                    // 得到此属性的值
+                    map.put(f.getName(), val);// 设置键值
                 }
-            }else{
-                sb.append(c);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
             }
+        });
+        return map;
+    }
+
+
+    public static String generateRedisKey(Object[] params,String redisTimeKey){
+        if(params==null||params.length<1){
+            return redisTimeKey;
         }
-        return sb.toString();
-    }
-
-
-
-    public static String strToLikeStr(String str) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("%").append(str).append("%");
-        return sb.toString();
-    }
-
-    /**
-     *   [2,3,4]  ---> 2,3,4
-     * @param ids
-     * @return
-     */
-    public static String getStrIds(List<Long> ids){
-        if(null==ids||ids.isEmpty()){
-            return null;
+        Object[] tmpParams=new Object[params.length+1];
+        tmpParams[0]=redisTimeKey;
+        int i=1;
+        for(Object item:params){
+            if(item!=null) {
+                if (item instanceof BaseMongoDbModel) {
+                    tmpParams[i] = md5(item.toString());
+                } else {
+                    tmpParams[i] = item.toString();
+                }
+            }
+            else {
+                tmpParams[i]=null;
+            }
+            i++;
         }
-        StringBuilder sb=new StringBuilder();
-        for(Long id:ids){
-            sb.append(id+",");
+        return contacsString(tmpParams);
+    }
+
+    public static int greateZero(int count){
+        return count>0?count:0;
+    }
+
+
+    public static String md5(String str) {
+        if (StringUtils.isBlank(str)) {
+            return "";
         }
-        return sb.toString().substring(0,sb.length()-1);
+        MessageDigest md5 = null;
+        try {
+            md5 = MessageDigest.getInstance("md5");
+            md5.update(str.getBytes("UTF-8"));
+            byte[] md5Bytes = md5.digest();
+            StringBuilder hexValue = new StringBuilder();
+            for (byte by : md5Bytes) {
+                int val = ((int) by) & 0xff;
+                if (val < 16) {
+                    hexValue.append("0");
+                }
+                hexValue.append(Integer.toHexString(val));
+            }
+            return hexValue.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 
-    public static void main(String[] args){
-        List<Long> list=new ArrayList<>(4);
-        list.add(2L);
-        list.add(3L);
-        list.add(4L);
-        list.add(5L);
-        System.out.println(getStrIds(list));
-
-    }
 
 
 }
