@@ -3,7 +3,6 @@ package cn.com.flaginfo.platform.littleProject.mongo.models;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-
 @Document(collection = "MetroLine")
 public class MetroLine  extends BaseMongoDbModel{
 

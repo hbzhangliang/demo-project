@@ -13,6 +13,7 @@ public class Dict extends BaseMongoDbModel{
     private String code;
     private String name;
     private List<DictItem> itemList;
+    private String value;
     private String remark;
 
     public String getCode() {
@@ -39,6 +40,14 @@ public class Dict extends BaseMongoDbModel{
         this.itemList = itemList;
     }
 
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -53,6 +62,7 @@ public class Dict extends BaseMongoDbModel{
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", itemList=" + itemList +
+                ", value='" + value + '\'' +
                 ", remark='" + remark + '\'' +
                 ", id='" + id + '\'' +
                 '}';

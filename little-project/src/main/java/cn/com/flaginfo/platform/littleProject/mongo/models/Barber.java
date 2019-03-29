@@ -22,6 +22,8 @@ public class Barber extends BaseMongoDbModel{
     private String experience;
     //选取字典表中数据
     private List<String> positionList;
+    private List<String> metroList;
+    private String address;
     private String salary;
     //0 离职 1 在职
     private Boolean isOnjob;
@@ -114,6 +116,22 @@ public class Barber extends BaseMongoDbModel{
         isOnjob = onjob;
     }
 
+    public List<String> getMetroList() {
+        return metroList;
+    }
+
+    public void setMetroList(List<String> metroList) {
+        this.metroList = metroList;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     @Override
     public String toString() {
         return "Barber{" +
@@ -126,8 +144,11 @@ public class Barber extends BaseMongoDbModel{
                 ", gender=" + gender +
                 ", experience='" + experience + '\'' +
                 ", positionList=" + positionList +
+                ", metroList=" + metroList +
+                ", address='" + address + '\'' +
                 ", salary='" + salary + '\'' +
                 ", isOnjob=" + isOnjob +
+                ", id='" + id + '\'' +
                 '}';
     }
 }

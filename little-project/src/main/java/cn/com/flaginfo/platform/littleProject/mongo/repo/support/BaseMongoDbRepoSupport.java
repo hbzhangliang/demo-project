@@ -3,6 +3,7 @@ package cn.com.flaginfo.platform.littleProject.mongo.repo.support;
 import cn.com.flaginfo.platform.littleProject.mongo.models.BaseMongoDbModel;
 import cn.com.flaginfo.platform.littleProject.mongo.repo.BaseMongoDbRepo;
 import cn.com.flaginfo.platform.littleProject.mongo.vo.PageParams;
+import cn.com.flaginfo.platform.littleProject.utils.exception.BarberException;
 import com.mongodb.WriteResult;
 import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -51,6 +53,7 @@ public abstract class BaseMongoDbRepoSupport<T extends BaseMongoDbModel> impleme
     @Override
     public T find(String id) {
         return mongoTpl.findById(new ObjectId(id), type);
+//        return mongoTpl.find(new Query(Criteria.where(BaseMongoDbModel.ID).is(id)));
     }
 
 
@@ -245,7 +248,33 @@ public abstract class BaseMongoDbRepoSupport<T extends BaseMongoDbModel> impleme
 
     @Override
     public void saveOrUpdate(T bean) {
-        this.save(bean);
+        if(bean.getId()==null){
+            this.insert(bean);
+        }
+        else {
+            try {
+                T old = this.find(bean.getId());
+                for (Method item : bean.getClass().getDeclaredMethods()) {
+                    if(item.getName().startsWith("get")) {
+                        Object object = item.invoke(bean, null);
+                        if(object!=null){
+                            for(Method item2:old.getClass().getDeclaredMethods()){
+                                if(item.getName().replaceAll("get","set").equals(item2.getName())){
+                                    item2.invoke(old,object);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                this.save(old);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                throw new BarberException("error save");
+            }
+        }
+
     }
 
     @Override
@@ -263,6 +292,7 @@ public abstract class BaseMongoDbRepoSupport<T extends BaseMongoDbModel> impleme
         int totalPage=totalRows/limit+(totalRows%limit==0?0:1);
         pageParams.setTotalPage(totalPage);
         pageParams.setTotalRows(totalRows);
+        query=query==null?new Query():query;
         pageParams.setData(this.list(query.with(new Sort(Sort.Direction.fromString(pageParams.getDirection()),pageParams.getOrderBy())).skip(start).limit(limit)));
         return pageParams;
     }

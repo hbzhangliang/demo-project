@@ -1,9 +1,7 @@
 package cn.com.flaginfo.platform.littleProject.controller;
 
 import cn.com.flaginfo.platform.littleProject.mongo.models.Dict;
-import cn.com.flaginfo.platform.littleProject.mongo.models.MetroLine;
 import cn.com.flaginfo.platform.littleProject.mongo.repo.DictRepo;
-import cn.com.flaginfo.platform.littleProject.mongo.repo.MetroLineRepo;
 import cn.com.flaginfo.platform.littleProject.mongo.vo.PageParams;
 import cn.com.flaginfo.platform.littleProject.utils.annotation.RedisInject;
 import org.springframework.beans.factory.annotation.Autowired;
