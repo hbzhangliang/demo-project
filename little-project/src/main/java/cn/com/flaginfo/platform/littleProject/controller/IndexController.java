@@ -1,6 +1,5 @@
 package cn.com.flaginfo.platform.littleProject.controller;
 
-import cn.com.flaginfo.platform.littleProject.mongo.repo.UserRepo;
 import cn.com.flaginfo.platform.littleProject.utils.RedisUtils;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/")
 @RestController
 public class IndexController {
-
-    @Autowired
-    private UserRepo userRepo;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -34,11 +30,6 @@ public class IndexController {
         return redisUtils.getObj("aa");
     }
 
-
-    @RequestMapping(value = "/mongo")
-    public Object mongo(){
-        return userRepo.list();
-    }
 
 
 }

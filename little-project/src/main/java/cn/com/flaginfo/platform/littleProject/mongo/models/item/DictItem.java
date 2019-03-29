@@ -1,18 +1,11 @@
-package cn.com.flaginfo.platform.littleProject.mongo.models;
+package cn.com.flaginfo.platform.littleProject.mongo.models.item;
 
-import cn.com.flaginfo.platform.littleProject.mongo.models.item.DictItem;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import java.io.Serializable;
 
-@Document(collection = "Dict")
-public class Dict extends BaseMongoDbModel{
-
-    @Indexed
+public class DictItem implements Serializable {
     private String code;
     private String name;
-    private List<DictItem> itemList;
     private String remark;
 
     public String getCode() {
@@ -31,14 +24,6 @@ public class Dict extends BaseMongoDbModel{
         this.name = name;
     }
 
-    public List<DictItem> getItemList() {
-        return itemList;
-    }
-
-    public void setItemList(List<DictItem> itemList) {
-        this.itemList = itemList;
-    }
-
     public String getRemark() {
         return remark;
     }
@@ -47,14 +32,13 @@ public class Dict extends BaseMongoDbModel{
         this.remark = remark;
     }
 
+
     @Override
     public String toString() {
-        return "Dict{" +
+        return "DictItem{" +
                 "code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", itemList=" + itemList +
                 ", remark='" + remark + '\'' +
-                ", id='" + id + '\'' +
                 '}';
     }
 }
