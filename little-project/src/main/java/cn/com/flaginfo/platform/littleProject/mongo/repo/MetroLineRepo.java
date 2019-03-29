@@ -8,14 +8,4 @@ import java.util.List;
 public interface MetroLineRepo extends BaseMongoDbRepo<MetroLine> {
 
 
-    void saveOrUpdate(MetroLine bean);
-
-    MetroLine getById(String id);
-
-    PageParams<MetroLine> list(PageParams<MetroLine> pageParams);
-
-    List<MetroLine> listAll();
-
-    Boolean del(List<String> ids);
-
 }

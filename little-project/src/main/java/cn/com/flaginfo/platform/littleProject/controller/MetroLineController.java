@@ -26,6 +26,7 @@ public class MetroLineController {
     }
 
     @RequestMapping(value = "/get")
+    @RedisInject(redisTimeKey = "METRO_LINE")
     public Object get(@RequestBody Map<String,String> map){
         String id=map.get("id");
         return metroLineRepo.getById(id);
@@ -37,6 +38,7 @@ public class MetroLineController {
     }
 
     @RequestMapping(value = "/listAll")
+    @RedisInject(redisTimeKey = "METRO_LINE_ALL")
     public Object listAll(){
         return metroLineRepo.listAll();
     }

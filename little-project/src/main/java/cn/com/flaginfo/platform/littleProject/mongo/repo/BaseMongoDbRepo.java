@@ -1,5 +1,6 @@
 package cn.com.flaginfo.platform.littleProject.mongo.repo;
 
+import cn.com.flaginfo.platform.littleProject.mongo.vo.PageParams;
 import com.mongodb.WriteResult;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -129,4 +130,19 @@ public interface BaseMongoDbRepo<T> {
      * @return
      */
     T remove(T model);
+
+
+
+    //服务下沉
+    void saveOrUpdate(T bean);
+
+    T getById(String id);
+
+    PageParams<T> list(PageParams<T> pageParams);
+
+    List<T> listAll();
+
+    Boolean del(List<String> ids);
+
+
 }

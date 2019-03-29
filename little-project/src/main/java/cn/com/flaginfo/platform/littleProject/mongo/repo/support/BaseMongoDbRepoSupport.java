@@ -2,20 +2,22 @@ package cn.com.flaginfo.platform.littleProject.mongo.repo.support;
 
 import cn.com.flaginfo.platform.littleProject.mongo.models.BaseMongoDbModel;
 import cn.com.flaginfo.platform.littleProject.mongo.repo.BaseMongoDbRepo;
+import cn.com.flaginfo.platform.littleProject.mongo.vo.PageParams;
 import com.mongodb.WriteResult;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by liang_zhang on 2017/9/19.
@@ -241,4 +243,113 @@ public abstract class BaseMongoDbRepoSupport<T extends BaseMongoDbModel> impleme
     }
 
 
+    @Override
+    public void saveOrUpdate(T bean) {
+        this.save(bean);
+    }
+
+    @Override
+    public T getById(String id) {
+        return this.find(id);
+    }
+
+    @Override
+    public PageParams<T> list(PageParams<T> pageParams) {
+        Query query=this.createQuery(pageParams);
+        Long total=this.count(query);
+        int start=(pageParams.getPage()-1)*pageParams.getPageSize();
+        int limit=pageParams.getPageSize();
+        int totalRows=total==null?0:total.intValue();
+        int totalPage=totalRows/limit+(totalRows%limit==0?0:1);
+        pageParams.setTotalPage(totalPage);
+        pageParams.setTotalRows(totalRows);
+        pageParams.setData(this.list(query.with(new Sort(Sort.Direction.fromString(pageParams.getDirection()),pageParams.getOrderBy())).skip(start).limit(limit)));
+        return pageParams;
+    }
+
+    @Override
+    public List<T> listAll() {
+        return this.list();
+    }
+
+    @Override
+    public Boolean del(List<String> ids) {
+        Query query = new Query(Criteria.where(BaseMongoDbModel.ID).in(ids));
+        this.remove(query);
+        return true;
+    }
+
+
+
+    /**
+     *
+     * @param pageParams
+     * @return
+     */
+    private Query  createQuery(PageParams<T> pageParams){
+        Map<String,Object> params=pageParams.getParams();
+        if(params==null||params.isEmpty()){
+            return null;
+        }
+        Query query=new Query();
+        Criteria criteria=new Criteria();
+        Map<String, Pair<Object,Object>> btParams=new HashMap<>(2);
+        for(Map.Entry<String,Object> entity:params.entrySet()) {
+            String key = entity.getKey();
+            Object value = entity.getValue();
+            if(value==null|| StringUtils.isBlank(value.toString())) continue;
+            if(key.startsWith("eq_")){
+                String tmp=key.substring(3);
+                criteria.and(tmp).is(value);
+            }
+            else if(key.startsWith("lk_")){
+                String tmp=key.substring(3);
+                Pattern pattern=Pattern.compile(".*?" + value + ".*");
+                criteria.and(tmp).regex(pattern);
+            }
+            else if(key.startsWith("bt_")){
+                String tmp=key.substring(3);
+                if(tmp.endsWith("0")){
+                    tmp=tmp.substring(0,tmp.length()-1);
+                    if(btParams.get(tmp)==null){
+                        btParams.put(tmp,new Pair<>(value,null));
+                    }
+                    else {
+                        btParams.put(tmp,new Pair<>(value,btParams.get(tmp).getValue()));
+                    }
+                }
+                else if(tmp.endsWith("1")){
+                    tmp=tmp.substring(0,tmp.length()-1);
+                    if(btParams.get(tmp)==null){
+                        btParams.put(tmp,new Pair<>(null,value));
+                    }
+                    else {
+                        btParams.put(tmp,new Pair<>(btParams.get(tmp).getKey(),value));
+                    }
+                }
+                else {
+                    continue;
+                }
+            }
+            else {
+                continue;
+            }
+        }
+        if(!btParams.isEmpty()){
+            for(Map.Entry<String,Pair<Object,Object>> entity:btParams.entrySet()) {
+                Pair<Object,Object> tmp=entity.getValue();
+                if(tmp.getKey()==null){
+                    criteria.and(entity.getKey()).lt(tmp.getValue());
+                }
+                else if(tmp.getValue()==null){
+                    criteria.and(entity.getKey()).gte(tmp.getKey());
+                }
+                else {
+                    criteria.and(entity.getKey()).gte(tmp.getKey()).lt(tmp.getValue());
+                }
+            }
+        }
+        return query.addCriteria(criteria);
+
+    }
 }
