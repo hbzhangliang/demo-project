@@ -7,9 +7,18 @@ import java.util.List;
 @Document(collection = "MetroLine")
 public class MetroLine  extends BaseMongoDbModel{
 
+    private int seq=0;
     private String name;
     private String city;
     private List<String> stations;
+
+    public int getSeq() {
+        return seq;
+    }
+
+    public void setSeq(int seq) {
+        this.seq = seq;
+    }
 
     public String getName() {
         return name;

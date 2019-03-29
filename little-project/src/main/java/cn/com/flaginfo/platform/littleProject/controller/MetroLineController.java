@@ -39,8 +39,8 @@ public class MetroLineController {
 
     @RequestMapping(value = "/listAll")
     @RedisInject(redisTimeKey = "METRO_LINE_ALL")
-    public Object listAll(){
-        return metroLineRepo.listAll();
+    public Object listAll(@RequestBody Map<String,String>map){
+        return metroLineRepo.listByCity(map.get("city"));
     }
 
     @RequestMapping(value = "/del")
