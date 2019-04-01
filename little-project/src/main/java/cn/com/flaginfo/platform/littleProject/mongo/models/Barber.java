@@ -19,12 +19,19 @@ public class Barber extends BaseMongoDbModel{
     private String password;
     // 0 女  1 男
     private Boolean gender;
+    //字典项数据
     private String experience;
-    //选取字典表中数据
+    //字典项数据
     private List<String> positionList;
+    //字典项数据
     private List<String> metroList;
     private String address;
-    private String salary;
+    //字典项数据
+    private String currentSalary;
+    //字典项数据
+    private String expectSalary;
+    private int age;
+    private String remark;
     //0 离职 1 在职
     private Boolean isOnjob;
 
@@ -100,14 +107,6 @@ public class Barber extends BaseMongoDbModel{
         this.positionList = positionList;
     }
 
-    public String getSalary() {
-        return salary;
-    }
-
-    public void setSalary(String salary) {
-        this.salary = salary;
-    }
-
     public Boolean getOnjob() {
         return isOnjob;
     }
@@ -132,6 +131,38 @@ public class Barber extends BaseMongoDbModel{
         this.address = address;
     }
 
+    public String getCurrentSalary() {
+        return currentSalary;
+    }
+
+    public void setCurrentSalary(String currentSalary) {
+        this.currentSalary = currentSalary;
+    }
+
+    public String getExpectSalary() {
+        return expectSalary;
+    }
+
+    public void setExpectSalary(String expectSalary) {
+        this.expectSalary = expectSalary;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     @Override
     public String toString() {
         return "Barber{" +
@@ -146,7 +177,10 @@ public class Barber extends BaseMongoDbModel{
                 ", positionList=" + positionList +
                 ", metroList=" + metroList +
                 ", address='" + address + '\'' +
-                ", salary='" + salary + '\'' +
+                ", currentSalary='" + currentSalary + '\'' +
+                ", expectSalary='" + expectSalary + '\'' +
+                ", age=" + age +
+                ", remark='" + remark + '\'' +
                 ", isOnjob=" + isOnjob +
                 ", id='" + id + '\'' +
                 '}';
