@@ -49,4 +49,19 @@ public class DictController {
         return dictRepo.del(ids);
     }
 
+
+    @RequestMapping(value = "/cityDel")
+    public Object cityDel(@RequestBody Map<String,String> map){
+        String name=map.get("name");
+        return dictRepo.cityDel(name);
+    }
+
+    @RequestMapping(value = "/cityAdd")
+    public Object cityAdd(@RequestBody Map<String,String> map){
+        String name=map.get("name");
+        return dictRepo.cityAdd(name);
+    }
+
+
+
 }
