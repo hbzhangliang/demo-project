@@ -1,5 +1,7 @@
 package cn.com.flaginfo.platform.littleProject.controller;
 
+import cn.com.flaginfo.platform.littleProject.mongo.models.Dict;
+import cn.com.flaginfo.platform.littleProject.mongo.repo.DictRepo;
 import cn.com.flaginfo.platform.littleProject.utils.RedisUtils;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,21 @@ public class IndexController {
         return redisUtils.getObj("aa");
     }
 
+    @RequestMapping(value = "/mongo")
+    public Object test(){
+        Dict dict=dictRepo.getByCode("test");
+        if(dict==null){
+            dict=new Dict();
+            dict.setCode("test");
+            dict.setName("ddddddddd");
+            dict.setRemark("这里是测试信息");
+            dictRepo.save(dict);
+        }
+        return dictRepo.listAll();
+    }
+
+    @Autowired
+    private DictRepo dictRepo;
 
 
 }
