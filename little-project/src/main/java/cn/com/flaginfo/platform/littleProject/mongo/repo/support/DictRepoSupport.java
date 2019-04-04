@@ -3,6 +3,8 @@ package cn.com.flaginfo.platform.littleProject.mongo.repo.support;
 import cn.com.flaginfo.platform.littleProject.mongo.models.Dict;
 import cn.com.flaginfo.platform.littleProject.mongo.models.item.DictItem;
 import cn.com.flaginfo.platform.littleProject.mongo.repo.DictRepo;
+import cn.com.flaginfo.platform.littleProject.utils.exception.BarberException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -21,30 +23,43 @@ public class DictRepoSupport extends BaseMongoDbRepoSupport<Dict> implements Dic
         return this.find(query);
     }
 
-
     @Override
-    public Boolean cityDel(String name) {
-        Dict dict=this.getByCode(DICT_CITY);
+    public Boolean singleDel(String code, String childCode, String childName) {
+        Dict dict=this.getByCode(code);
         List<DictItem> list=new ArrayList<>(10);
-        dict.getItemList().forEach(p->{
-            if(!p.getName().equals(name)){
-                list.add(p);
-            }
-        });
+        if(StringUtils.isNotBlank(childCode)){
+            dict.getItemList().forEach(p->{
+               if(!p.getCode().equals(childCode)){
+                   list.add(p);
+               }
+            });
+        }
+        else if(StringUtils.isNotBlank(childName)){
+            dict.getItemList().forEach(p->{
+                if(!p.getName().equals(childName)){
+                    list.add(p);
+                }
+            });
+        }
         dict.setItemList(list);
         this.save(dict);
         return true;
     }
 
     @Override
-    public Boolean cityAdd(String name) {
-        Dict dict=this.getByCode(DICT_CITY);
+    public Boolean singleSave(String code, String childCode, String childName,String childRemark) {
+        if(StringUtils.isBlank(childCode)&&StringUtils.isBlank(childName)){
+            throw new BarberException("参数不完整");
+        }
+        Dict dict=this.getByCode(code);
         if(dict==null){
             dict=new Dict();
-            dict.setCode(DICT_CITY);
+            dict.setCode(code);
         }
         DictItem item=new DictItem();
-        item.setName(name);
+        item.setCode(childCode);
+        item.setName(childName);
+        item.setRemark(childRemark);
         if(dict.getItemList()==null){
             List<DictItem> list=new ArrayList<>(1);
             list.add(item);

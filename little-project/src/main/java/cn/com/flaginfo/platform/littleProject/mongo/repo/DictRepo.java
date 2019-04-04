@@ -6,9 +6,8 @@ public interface DictRepo extends BaseMongoDbRepo<Dict>{
 
     Dict getByCode(String code);
 
+    Boolean singleDel(String code,String childCode,String childName);
 
-    Boolean cityDel(String name);
-
-    Boolean cityAdd(String name);
+    Boolean singleSave(String code,String childCode,String childName,String childRemark);
 
 }

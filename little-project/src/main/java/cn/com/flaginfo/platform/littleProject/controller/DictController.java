@@ -4,6 +4,7 @@ import cn.com.flaginfo.platform.littleProject.mongo.models.Dict;
 import cn.com.flaginfo.platform.littleProject.mongo.repo.DictRepo;
 import cn.com.flaginfo.platform.littleProject.mongo.vo.PageParams;
 import cn.com.flaginfo.platform.littleProject.utils.annotation.RedisInject;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,17 +50,31 @@ public class DictController {
         return dictRepo.del(ids);
     }
 
-
-    @RequestMapping(value = "/cityDel")
-    public Object cityDel(@RequestBody Map<String,String> map){
-        String name=map.get("name");
-        return dictRepo.cityDel(name);
+    /**
+     * 添加参数形式
+     * code
+     * name
+     * item   code/nam
+     * @param map
+     * @return
+     */
+    @RequestMapping(value = "/singleDel")
+    public Object cityDel(@RequestBody Map<String,Object> map){
+        String code=map.get("code").toString();
+        Map<String,String> itemMap=(Map<String,String>)map.get("item");
+        String childCode=itemMap.get("code");
+        String childName=itemMap.get("name");
+        return dictRepo.singleDel(code,childCode,childName);
     }
 
-    @RequestMapping(value = "/cityAdd")
-    public Object cityAdd(@RequestBody Map<String,String> map){
-        String name=map.get("name");
-        return dictRepo.cityAdd(name);
+    @RequestMapping(value = "/singleAdd")
+    public Object cityAdd(@RequestBody Map<String,Object> map){
+        String code=map.get("code").toString();
+        Map<String,String> itemMap=(Map<String,String>)map.get("item");
+        String childCode=itemMap.get("code");
+        String childName=itemMap.get("name");
+        String childRemark=itemMap.get("remark");
+        return dictRepo.singleSave(code,childCode,childName,childRemark);
     }
 
 
